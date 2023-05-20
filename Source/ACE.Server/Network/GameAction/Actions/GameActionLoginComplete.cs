@@ -1,4 +1,3 @@
-// This file has been edited by Linae of DnF
 
 namespace ACE.Server.Network.GameAction.Actions
 {
@@ -17,13 +16,6 @@ namespace ACE.Server.Network.GameAction.Actions
             {
                 session.Player.FirstEnterWorldDone = true;
                 session.Player.SendPropertyUpdatesAndOverrides();
-
-                if (session.Player.IsFrozen == true)  // Added by Linae
-                {    
-                    session.Player.SetProperty(ACE.Entity.Enum.Properties.PropertyBool.IsFrozen, true);
-                    session.Player.EnqueueBroadcastPhysicsState();
-                    session.Player.SendFrozenMessage();
-                }
             }
         }
     }

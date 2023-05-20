@@ -6,15 +6,12 @@ using ACE.Common;
 using ACE.DatLoader;
 using ACE.Entity;
 using ACE.Entity.Enum;
-using ACE.Entity.Enum.Properties;  // Added by Linae
 using ACE.Server.Entity;
 using ACE.Server.Entity.Actions;
 using ACE.Server.Managers;
 using ACE.Server.Network.GameEvent.Events;
 using ACE.Server.Network.GameMessages.Messages;
 using ACE.Server.Physics;
-
-// This file has been edited by Linae of DnF
 
 namespace ACE.Server.WorldObjects
 {
@@ -80,7 +77,7 @@ namespace ACE.Server.WorldObjects
         /// Handles player targeted casting message
         /// </summary>
         /// <param name="builtInSpell">If TRUE, casting a built-in spell from a weapon</param>
-                public void HandleActionCastTargetedSpell(uint targetGuid, uint spellId, WorldObject casterItem = null)
+        public void HandleActionCastTargetedSpell(uint targetGuid, uint spellId, WorldObject casterItem = null)
         {
             //Console.WriteLine($"{Name}.HandleActionCastTargetedSpell({targetGuid:X8}, {spellId}, {builtInSpell})");
 
@@ -195,7 +192,7 @@ namespace ACE.Server.WorldObjects
         public void DoWindup(WindupParams windupParams, bool checkAngle)
         {
             //Console.WriteLine($"{Name}.DoWindup()");
- 
+
             // ensure target still exists
             var targetCategory = GetTargetCategory(windupParams.TargetGuid, windupParams.SpellId, out var target);
 
@@ -368,8 +365,6 @@ namespace ACE.Server.WorldObjects
 
         public enum CastingPreCheckStatus
         {
-            YouAreFrozen,  // Added by Linae
-            YouAreJailed,  // Added by Linae
             CastFailed,
             InvalidPKStatus,
             Success
@@ -599,7 +594,7 @@ namespace ACE.Server.WorldObjects
             spell.Formula.GetPlayerFormula(this);
 
             var spellWords = spell._spellBase.GetSpellWords(DatManager.PortalDat.SpellComponentsTable);
-            if (!string.IsNullOrWhiteSpace(spellWords) && !isWeaponSpell && YouAreFrozen is not true && YouAreJailed is not true) // Added by Linae
+            if (!string.IsNullOrWhiteSpace(spellWords) && !isWeaponSpell)
                 EnqueueBroadcast(new GameMessageHearSpeech(spellWords, GetNameWithSuffix(), Guid.Full, ChatMessageType.Spellcasting), LocalBroadcastRange, ChatMessageType.Spellcasting);
         }
 
@@ -1317,7 +1312,7 @@ namespace ACE.Server.WorldObjects
 
             if (parms != null && tryFizzle)
             {
-                 DoCastSpell_Inner(parms.Spell, parms.CasterItem, parms.ManaUsed, parms.Target, CastingPreCheckStatus.CastFailed, false);
+                DoCastSpell_Inner(parms.Spell, parms.CasterItem, parms.ManaUsed, parms.Target, CastingPreCheckStatus.CastFailed, false);
 
                 werror = WeenieError.YourSpellFizzled;
             }

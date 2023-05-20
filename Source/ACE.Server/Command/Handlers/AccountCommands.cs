@@ -8,18 +8,6 @@ using ACE.Database.Models.Auth;
 using ACE.Entity.Enum;
 using ACE.Server.Network;
 
-// added by Linae of Drunkenfell
-using System.Collections.Generic;
-using System.Globalization;
-using ACE.Entity;
-using ACE.Entity.Enum.Properties;
-using ACE.Server.Managers;
-using ACE.Server.Network.Enum;
-using ACE.Server.Network.GameMessages.Messages;
-using ACE.Server.Network.Managers;
-using ACE.Server.WorldObjects;
-
-
 namespace ACE.Server.Command.Handlers
 {
     public static class AccountCommands
@@ -31,98 +19,57 @@ namespace ACE.Server.Command.Handlers
             "Creates a new account.",
             "username password (accesslevel)\n" +
             "accesslevel can be a number or enum name\n" +
-            "Stock Levels: 0 = Player | 1 = Advocate | 2 = Sentinel | 3 = Envoy | 4 = Developer | 5 = Admin\n" +
-            "DnF Levels: 0 = Player | 1 = Advocate | 2 = LiveTeam | 3 = Sentinel | 4 = TeamLeader | 5 = Admin")]
+            "0 = Player | 1 = Advocate | 2 = Sentinel | 3 = Envoy | 4 = Developer | 5 = Admin")]
         public static void HandleAccountCreate(Session session, params string[] parameters)
         {
-            //code rewritten by Linae of Drunkenfell
-            // are we using the console or an online admin account?
-            if(session == null) // ok - we're on the console
+            AccessLevel defaultAccessLevel = (AccessLevel)Common.ConfigManager.Config.Server.Accounts.DefaultAccessLevel;
+
+            if (!Enum.IsDefined(typeof(AccessLevel), defaultAccessLevel))
+                defaultAccessLevel = AccessLevel.Player;
+
+            var accessLevel = defaultAccessLevel;
+
+            if (parameters.Length > 2)
             {
-                AccessLevel defaultAccessLevel = (AccessLevel)Common.ConfigManager.Config.Server.Accounts.DefaultAccessLevel;
-
-                if (!Enum.IsDefined(typeof(AccessLevel), defaultAccessLevel))
-                    defaultAccessLevel = AccessLevel.Player;
-
-                var accessLevel = defaultAccessLevel;
-
-                if (parameters.Length > 2)
+                if (Enum.TryParse(parameters[2], true, out accessLevel))
                 {
-                    if (Enum.TryParse(parameters[2], true, out accessLevel))
-                    {
-                        if (!Enum.IsDefined(typeof(AccessLevel), accessLevel))
-                            accessLevel = defaultAccessLevel;
-                    }
+                    if (!Enum.IsDefined(typeof(AccessLevel), accessLevel))
+                        accessLevel = defaultAccessLevel;
                 }
-
-                string articleAorAN = "a";
-                if (accessLevel == AccessLevel.Advocate || accessLevel == AccessLevel.Admin || accessLevel == AccessLevel.Envoy)
-                    articleAorAN = "an";
-
-                string message = "";
-
-                var accountExists = DatabaseManager.Authentication.GetAccountByName(parameters[0]);
-                        
-                if (accountExists != null)
-                {
-                    message= "Account already exists. Try a new name.";
-                }
-                else
-                {
-                    try
-                    {
-                        var account = DatabaseManager.Authentication.CreateAccount(parameters[0].ToLower(), parameters[1], accessLevel, IPAddress.Parse("127.0.0.1"));
-
-                        if (DatabaseManager.AutoPromoteNextAccountToAdmin && accessLevel == AccessLevel.Admin)
-                            DatabaseManager.AutoPromoteNextAccountToAdmin = false;
-
-                        message = ("[AUDIT] Account successfully created for " + account.AccountName + " (" + account.AccountId + ") with access rights as " + articleAorAN + " " + Enum.GetName(typeof(AccessLevel), accessLevel) + " from Server Console.");
-                    }
-                    catch
-                    {
-                        message = "Account already exists. Try a new name.";
-                    }
-                }
-
-                CommandHandlerHelper.WriteOutputInfo(session, message, ChatMessageType.WorldBroadcast);
             }
-            else // we're using an online admin account
+
+            string articleAorAN = "a";
+            if (accessLevel == AccessLevel.Advocate || accessLevel == AccessLevel.Admin || accessLevel == AccessLevel.Envoy)
+                articleAorAN = "an";
+
+            string message = "";
+
+            var accountExists = DatabaseManager.Authentication.GetAccountByName(parameters[0]);
+                      
+            if (accountExists != null)
             {
-                AccessLevel defaultAccessLevel = (AccessLevel)Common.ConfigManager.Config.Server.Accounts.DefaultAccessLevel;
-
-                if (!Enum.IsDefined(typeof(AccessLevel), defaultAccessLevel))
-                    defaultAccessLevel = AccessLevel.Player;
-
-                var accessLevel = defaultAccessLevel;
-
-                if (parameters.Length > 2)
-                {
-                    if (Enum.TryParse(parameters[2], true, out accessLevel))
-                    {
-                        if (!Enum.IsDefined(typeof(AccessLevel), accessLevel))
-                            accessLevel = defaultAccessLevel;
-                    }
-                }
-
-                string articleAorAN = "a";
-                if (accessLevel == AccessLevel.Advocate || accessLevel == AccessLevel.Admin)
-                    articleAorAN = "an";
-
-                var accountExists = DatabaseManager.Authentication.GetAccountByName(parameters[0]);
-                        
-                if (accountExists != null)
-                {
-                    CommandHandlerHelper.WriteOutputInfo(session, "Account " + parameters[0] + " already exists.  Try another name.", ChatMessageType.Broadcast);
-                }
-                else
+                message= "Account already exists. Try a new name.";
+            }
+            else
+            {
+                try
                 {
                     var account = DatabaseManager.Authentication.CreateAccount(parameters[0].ToLower(), parameters[1], accessLevel, IPAddress.Parse("127.0.0.1"));
 
-                    PlayerManager.BroadcastToAuditChannel(session.Player, $"Account successfully created for {parameters[0]} ({account.AccountId}) with access rights as {articleAorAN} {Enum.GetName(typeof(AccessLevel), accessLevel)} by {session.Player.Name}.");
+                    if (DatabaseManager.AutoPromoteNextAccountToAdmin && accessLevel == AccessLevel.Admin)
+                        DatabaseManager.AutoPromoteNextAccountToAdmin = false;
+
+                    message = ("Account successfully created for " + account.AccountName + " (" + account.AccountId + ") with access rights as " + articleAorAN + " " + Enum.GetName(typeof(AccessLevel), accessLevel) + ".");
+                }
+                catch
+                {
+                    message = "Account already exists. Try a new name.";
                 }
             }
-        }
 
+            CommandHandlerHelper.WriteOutputInfo(session, message, ChatMessageType.WorldBroadcast);
+        }
+  
         [CommandHandler("accountget", AccessLevel.Admin, CommandHandlerFlag.ConsoleInvoke, 1,
             "Gets an account.",
             "username")]
@@ -132,97 +79,54 @@ namespace ACE.Server.Command.Handlers
             Console.WriteLine($"User: {account.AccountName}, ID: {account.AccountId}");
         }
 
-
         // set-accountaccess accountname (accesslevel)
-        //code rewritten by Linae of Drunkenfell
         [CommandHandler("set-accountaccess", AccessLevel.Admin, CommandHandlerFlag.None, 1, 
             "Change the access level of an account.", 
             "accountname (accesslevel)\n" +
             "accesslevel can be a number or enum name\n" +
-            "Stock Levels: 0 = Player | 1 = Advocate | 2 = Sentinel | 3 = Envoy | 4 = Developer | 5 = Admin\n" +
-            "DnF Levels: 0 = Player | 1 = Advocate | 2 = LiveTeam | 3 = Sentinel | 4 = TeamLeader  | 5 = Admin")]
+            "0 = Player | 1 = Advocate | 2 = Sentinel | 3 = Envoy | 4 = Developer | 5 = Admin")]
         public static void HandleAccountUpdateAccessLevel(Session session, params string[] parameters)
         {
-            // are we using the console or an online admin account
-            if(session == null) // ok - we're on the console
-            { 
-                string accountName  = parameters[0].ToLower();
+            string accountName  = parameters[0].ToLower();
 
-                var accountId = DatabaseManager.Authentication.GetAccountIdByName(accountName);
+            var accountId = DatabaseManager.Authentication.GetAccountIdByName(accountName);
 
-                if (accountId == 0)
-                {
-                    CommandHandlerHelper.WriteOutputInfo(session, "Account " + accountName + " does not exist.", ChatMessageType.Broadcast);
-                    return;
-                }
-
-                AccessLevel accessLevel = AccessLevel.Player;
-
-                if (parameters.Length > 1)
-                {
-                    if (Enum.TryParse(parameters[1], true, out accessLevel))
-                    {
-                        if (!Enum.IsDefined(typeof(AccessLevel), accessLevel))
-                            accessLevel = AccessLevel.Player;
-                    }
-                }
-
-                string articleAorAN = "a";
-                if (accessLevel == AccessLevel.Advocate || accessLevel == AccessLevel.Admin || accessLevel == AccessLevel.Envoy)
-                    articleAorAN = "an";
-
-                if (accountId == 0)
-                {
-                    CommandHandlerHelper.WriteOutputInfo(session, "Account " + accountName + " does not exist.", ChatMessageType.Broadcast);
-                    return;
-                }
-
-                DatabaseManager.Authentication.UpdateAccountAccessLevel(accountId, accessLevel);
-
-                if (DatabaseManager.AutoPromoteNextAccountToAdmin && accessLevel == AccessLevel.Admin)
-                    DatabaseManager.AutoPromoteNextAccountToAdmin = false;
-
-                CommandHandlerHelper.WriteOutputInfo(session, "[AUDIT] Account " + accountName + " updated with access rights set as " + articleAorAN + " " + Enum.GetName(typeof(AccessLevel), accessLevel) + " from Server Console.", ChatMessageType.Broadcast);
-            }
-            else // we're using an online admin account
+            if (accountId == 0)
             {
-                string accountName  = parameters[0].ToLower();
-
-                var accountId = DatabaseManager.Authentication.GetAccountIdByName(accountName);
-
-                if (accountId == 0)
-                {
-                    CommandHandlerHelper.WriteOutputInfo(session, "Account " + accountName + " does not exist.", ChatMessageType.Broadcast);
-                    return;
-                }
-
-                AccessLevel accessLevel = AccessLevel.Player;
-
-                if (parameters.Length > 1)
-                {
-                    if (Enum.TryParse(parameters[1], true, out accessLevel))
-                    {
-                        if (!Enum.IsDefined(typeof(AccessLevel), accessLevel))
-                            accessLevel = AccessLevel.Player;
-                    }
-                }
-
-                string articleAorAN = "a";
-                if (accessLevel == AccessLevel.Advocate || accessLevel == AccessLevel.Admin)
-                    articleAorAN = "an";
-
-                if (accountId == 0)
-                {
-                    CommandHandlerHelper.WriteOutputInfo(session, "Account " + accountName + " does not exist.", ChatMessageType.Broadcast);
-                    return;
-                }
-
-                DatabaseManager.Authentication.UpdateAccountAccessLevel(accountId, accessLevel);
-                PlayerManager.BroadcastToAuditChannel(session.Player, $"Account {accountName} ({accountId}) updated with access rights set as {articleAorAN} {Enum.GetName(typeof(AccessLevel), accessLevel)} by {session.Player.Name}.");
+                CommandHandlerHelper.WriteOutputInfo(session, "Account " + accountName + " does not exist.", ChatMessageType.Broadcast);
+                return;
             }
+
+            AccessLevel accessLevel = AccessLevel.Player;
+
+            if (parameters.Length > 1)
+            {
+                if (Enum.TryParse(parameters[1], true, out accessLevel))
+                {
+                    if (!Enum.IsDefined(typeof(AccessLevel), accessLevel))
+                        accessLevel = AccessLevel.Player;
+                }
+            }
+
+            string articleAorAN = "a";
+            if (accessLevel == AccessLevel.Advocate || accessLevel == AccessLevel.Admin || accessLevel == AccessLevel.Envoy)
+                articleAorAN = "an";
+
+            if (accountId == 0)
+            {
+                CommandHandlerHelper.WriteOutputInfo(session, "Account " + accountName + " does not exist.", ChatMessageType.Broadcast);
+                return;
+            }
+
+            DatabaseManager.Authentication.UpdateAccountAccessLevel(accountId, accessLevel);
+
+            if (DatabaseManager.AutoPromoteNextAccountToAdmin && accessLevel == AccessLevel.Admin)
+                DatabaseManager.AutoPromoteNextAccountToAdmin = false;
+
+            CommandHandlerHelper.WriteOutputInfo(session, "Account " + accountName + " updated with access rights set as " + articleAorAN + " " + Enum.GetName(typeof(AccessLevel), accessLevel) + ".", ChatMessageType.Broadcast);
         }
 
-         // set-accountpassword accountname newpassword
+        // set-accountpassword accountname newpassword
         [CommandHandler("set-accountpassword", AccessLevel.Admin, CommandHandlerFlag.None, 2,
             "Set the account password.",
             "accountname newpassword\n")]

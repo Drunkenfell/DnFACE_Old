@@ -17,8 +17,6 @@ using ACE.Server.Network.GameEvent.Events;
 using ACE.Server.Network.GameMessages.Messages;
 using ACE.Server.Managers;
 
-// This file has been edited by Linae of DnF
-
 namespace ACE.Server.WorldObjects
 {
     partial class Player
@@ -74,7 +72,7 @@ namespace ACE.Server.WorldObjects
 
             if (RecallsDisabled)
             {
-                Session.Network.EnqueueSend(new GameMessageSystemChat($"You either need to leave the Training Academy or be thawed or pardoned by an Admin to use this ability.", ChatMessageType.Broadcast));  // thawed or pardoned added by Linae
+                Session.Network.EnqueueSend(new GameEventWeenieError(Session, WeenieError.ExitTrainingAcademyToUseCommand));
                 return;
             }
 
@@ -141,7 +139,7 @@ namespace ACE.Server.WorldObjects
 
             if (RecallsDisabled)
             {
-                Session.Network.EnqueueSend(new GameMessageSystemChat($"You either need to leave the Training Academy or be thawed or pardoned by an Admin to use this ability.", ChatMessageType.Broadcast));  // thawed or pardoned added by Linae
+                Session.Network.EnqueueSend(new GameEventWeenieError(Session, WeenieError.ExitTrainingAcademyToUseCommand));
                 return;
             }
 
@@ -214,7 +212,7 @@ namespace ACE.Server.WorldObjects
 
             if (RecallsDisabled)
             {
-                Session.Network.EnqueueSend(new GameMessageSystemChat($"You either need to leave the Training Academy or be thawed or pardoned by an Admin to use this ability.", ChatMessageType.Broadcast));  // thawed or pardoned added by Linae
+                Session.Network.EnqueueSend(new GameEventWeenieError(Session, WeenieError.ExitTrainingAcademyToUseCommand));
                 return;
             }
 
@@ -283,7 +281,7 @@ namespace ACE.Server.WorldObjects
 
             if (RecallsDisabled)
             {
-                Session.Network.EnqueueSend(new GameMessageSystemChat($"You either need to leave the Training Academy or be thawed or pardoned by an Admin to use this ability.", ChatMessageType.Broadcast));  // thawed or pardoned added by Linae
+                Session.Network.EnqueueSend(new GameEventWeenieError(Session, WeenieError.ExitTrainingAcademyToUseCommand));
                 return;
             }
 
@@ -376,7 +374,7 @@ namespace ACE.Server.WorldObjects
 
             if (RecallsDisabled)
             {
-                Session.Network.EnqueueSend(new GameMessageSystemChat($"You either need to leave the Training Academy or be thawed or pardoned by an Admin to use this ability.", ChatMessageType.Broadcast));  // thawed or pardoned added by Linae
+                Session.Network.EnqueueSend(new GameEventWeenieError(Session, WeenieError.ExitTrainingAcademyToUseCommand));
                 return;
             }
 
@@ -497,7 +495,7 @@ namespace ACE.Server.WorldObjects
 
             if (RecallsDisabled)
             {
-                Session.Network.EnqueueSend(new GameMessageSystemChat($"You either need to leave the Training Academy or be thawed or pardoned by an Admin to use this ability.", ChatMessageType.Broadcast));  // thawed or pardoned added by Linae
+                Session.Network.EnqueueSend(new GameEventWeenieError(Session, WeenieError.ExitTrainingAcademyToUseCommand));
                 return;
             }
 
@@ -581,7 +579,7 @@ namespace ACE.Server.WorldObjects
 
             if (RecallsDisabled)
             {
-                Session.Network.EnqueueSend(new GameMessageSystemChat($"You either need to leave the Training Academy or be thawed or pardoned by an Admin to use this ability.", ChatMessageType.Broadcast));  // thawed or pardoned added by Linae
+                Session.Network.EnqueueSend(new GameEventWeenieError(Session, WeenieError.ExitTrainingAcademyToUseCommand));
                 return;
             }
 

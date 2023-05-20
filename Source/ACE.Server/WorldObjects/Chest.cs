@@ -12,8 +12,6 @@ using ACE.Server.Managers;
 using ACE.Server.Network.GameEvent.Events;
 using ACE.Server.Network.GameMessages.Messages;
 
-// This file edited by Linae of DnF
-
 namespace ACE.Server.WorldObjects
 {
     public partial class Chest : Container, Lock
@@ -253,8 +251,7 @@ namespace ACE.Server.WorldObjects
                     EnqueueBroadcast(new GameMessagePublicUpdatePropertyBool(this, PropertyBool.Locked, IsLocked));
             }
 
-            if (ResetInterval != -1)  // Added by Linae of DnF
-                ClearUnmanagedInventory();
+            ClearUnmanagedInventory();
 
             if (IsGenerator)
             {

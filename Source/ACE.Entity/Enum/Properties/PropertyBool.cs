@@ -1,7 +1,5 @@
 using System.ComponentModel;
 
-// This file has been edited by Linae of DnF
-
 namespace ACE.Entity.Enum.Properties
 {
     public enum PropertyBool : ushort
@@ -40,8 +38,7 @@ namespace ACE.Entity.Enum.Properties
         Inelastic                        = 17,
         [ServerOnly][Ephemeral]
         Visibility                       = 18,
-        //[ServerOnly]                              // Commented out added by Linae
-        [SendOnLogin]                               // Added by Linae
+        [ServerOnly]
         Attackable                       = 19,
         SafeSpellComponents              = 20,
         AdvocateState                    = 21,
@@ -63,7 +60,6 @@ namespace ACE.Entity.Enum.Properties
         DefaultLocked                    = 35,
         DefaultOn                        = 36,
         OpenForBusiness                  = 37,
-        [SendOnLogin]                           // Added by Linae
         IsFrozen                         = 38,
         DealMagicalItems                 = 39,
         LogoffImDead                     = 40,
@@ -145,7 +141,6 @@ namespace ACE.Entity.Enum.Properties
         Unknown105                       = 105,
         [Ephemeral]
         FirstEnterWorldDone              = 106,
-        [SendOnLogin]                               // Added by Linae
         RecallsDisabled                  = 107,
         RareUsesTimer                    = 108,
         ActdPreorderReceivedItems        = 109,
@@ -197,12 +192,6 @@ namespace ACE.Entity.Enum.Properties
         SkillTemplesTimerReset           = 9009,
         [ServerOnly]
         FreeMasteryResetRenewed          = 9010,
-        [SendOnLogin]                              // Added by Linae
-        YouAreJailed                     = 10000,  // Added by Linae
-        [SendOnLogin]                              // Added by Linae
-        YouAreFrozen                     = 10001,  // Added by Linae
-        [SendOnLogin]                              // Added by Linae
-        YouAreAttackable                 = 10002,  // Added by Linae
     }
 
     public static class PropertyBoolExtensions
